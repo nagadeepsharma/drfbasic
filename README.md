@@ -3,7 +3,6 @@
 
 #Custom User Model
 # models.py
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
@@ -35,6 +34,7 @@ class CustomUser(AbstractUser):
     
     def __str__(self):
         return self.email
+
         
 #settings.py
 AUTH_USER_MODEL='accounts.CustomUser'
