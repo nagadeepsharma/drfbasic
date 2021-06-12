@@ -1,12 +1,11 @@
-# Django Rest Frame Work
+# Django Rest FrameWork
 # Topics [Custom User Model,Custom User Forms,TokenAuthentication]
 
-#Custom User Model
+# Custom User Model
 # models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
-
 class CustomUserManager(BaseUserManager):
     def create_user(self,email,password=None,**extra_fields):
         if not email:
@@ -36,16 +35,16 @@ class CustomUser(AbstractUser):
         return self.email
 
         
-#settings.py
+# settings.py
 AUTH_USER_MODEL='accounts.CustomUser'
 
-#admin.py
+# admin.py
 from django.contrib.auth import get_user_model
 User=get_user_model()
 admin.site.register(User)
 
-#Custom User Form
-#forms.py
+# Custom User Form
+# forms.py
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
@@ -59,8 +58,8 @@ class CustomUserChangeForm(UserChangeForm):
         model = CustomUser
         fields = ('email',)
 
-#TokenAuthentication
-#serializers.py
+# TokenAuthentication
+# serializers.py
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from rest_framework import serializers
@@ -109,14 +108,14 @@ class Loginserializer(serializers.Serializer):
             msg="Username and Password must provide"
             raise exceptions.ValidationError(msg)
 
-#settings.py
+# settings.py
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # <-- And here
     ],
 }
 
-#views.py
+# views.py
 from drfbasic.serializers import Registerserializer
 from django.contrib.auth import authenticate,login
 from rest_framework.response import Response
