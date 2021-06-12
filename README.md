@@ -6,8 +6,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
+
 class CustomUserManager(BaseUserManager):
-    def create_user(self,email,password=None,++extra_fields):
+
+    def create_user(self,email,password=None,**extra_fields):
         if not email:
             raise ValueError("email or username must be provided")
         email=self.normalize_email(email)
@@ -15,7 +17,8 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save()
         return user
-    def create_superuser(self,email,password=None,++extra_fields):
+        
+    def create_superuser(self,email,password=None,**extra_fields):
         extra_fields.setdefault('is_staff',True)
         extra_fields.setdefault('is_superuser',True)
         extra_fields.setdefault('is_active',True)
@@ -23,8 +26,10 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
-        return self.create_user(email,password, ++extra_fields)
+        return self.create_user(email,password, **extra_fields)
+        
 class CustomUser(AbstractUser):
+
     username=None
     email=models.EmailField(verbose_name="email",unique=True)
     USERNAME_FIELD='email'
@@ -36,17 +41,21 @@ class CustomUser(AbstractUser):
 
         
 # settings.py
+
 AUTH_USER_MODEL='accounts.CustomUser'
 
 # admin.py
+
 from django.contrib.auth import get_user_model
 User=get_user_model()
 admin.site.register(User)
 
 # Custom User Form
 # forms.py
+
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser
+
 class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
@@ -60,6 +69,7 @@ class CustomUserChangeForm(UserChangeForm):
 
 # TokenAuthentication
 # serializers.py
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from rest_framework import serializers
@@ -87,6 +97,7 @@ class Registerserializer(serializers.Serializer):
         else:
             msg="User already Exists!"
             raise exceptions.ValidationError(msg)
+            
 class Loginserializer(serializers.Serializer):
     username=serializers.CharField()
     password=serializers.CharField()
@@ -109,6 +120,7 @@ class Loginserializer(serializers.Serializer):
             raise exceptions.ValidationError(msg)
 
 # settings.py
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -116,6 +128,7 @@ REST_FRAMEWORK = {
 }
 
 # views.py
+
 from drfbasic.serializers import Registerserializer
 from django.contrib.auth import authenticate,login
 from rest_framework.response import Response
@@ -131,8 +144,10 @@ from rest_framework import status,exceptions
 class Index(APIView):
     authentication_classes=[TokenAuthentication]
     permission_classes=[IsAuthenticated]
+    
     def get(self,request):
         return Response({'message':'Welcome to Django rest Framework'})
+        
     def post(self,request):
         contact=request.data.get('contact')
         return Response({'Contact':contact})
@@ -140,6 +155,7 @@ class Index(APIView):
     
 
 @api_view(['POST'])
+
 def register(request):
     regs=Registerserializer(data=request.data)
     regs.is_valid(raise_exception=True)
@@ -147,6 +163,7 @@ def register(request):
     return Response({'message':message})
 
 @api_view(['POST'])
+
 def login(request):
     regs=Loginserializer(data=request.data)
     regs.is_valid(raise_exception=True)
@@ -158,6 +175,7 @@ def login(request):
 @permission_classes(['isAuthenticated'])
 @authentication_classes(['TokenAuthentication'])
 @api_view(['GET'])
+
 def logout(request):
     print(request.user)
     if(str(request.user)!='AnonymousUser'):
